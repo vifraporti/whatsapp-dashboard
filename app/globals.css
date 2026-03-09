@@ -24,3 +24,13 @@ body {
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
 }
+
+/* Scroll invisível mas funcional */
+.scroll-invisible {
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE e Edge antigo */
+}
+
+.scroll-invisible::-webkit-scrollbar {
+  display: none; /* Chrome, Safari */
+}
