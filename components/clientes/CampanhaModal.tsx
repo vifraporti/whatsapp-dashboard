@@ -24,7 +24,7 @@ export default function CampanhaModal({ open, onClose }: Props) {
   }
 
   return () => {
-    document.body.style.overflow = "auto";
+    document.body.style.overflow = "auto"; 
   };
 }, [open]);
 
