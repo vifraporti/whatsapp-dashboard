@@ -16,6 +16,8 @@ import {
 import { clientsSeed } from "../../../../lib/data/clients";
 
 import CampanhaModal from "@/components/clientes/CampanhaModal";
+import { exportClientsToCSV } from "@/lib/utils/exportClients";
+
 
 /* ================= TYPES ================= */
 
@@ -51,7 +53,7 @@ function formatCurrency(value: number): string {
 export default function SegmentacaoPage() {
   const router = useRouter();
 
-  const clients = clientsSeed as Client[];
+  const clients: Client[] = clientsSeed;
 
   const [selectedSegment, setSelectedSegment] = useState<SegmentKey | null>(null);
 
@@ -241,10 +243,17 @@ export default function SegmentacaoPage() {
             Enviar campanha
           </button>
 
-          <button className="bg-white border border-slate-200 px-6 py-3 rounded-xl flex items-center gap-2">
-            <Download className="h-4 w-4" />
-            Exportar lista
-          </button>
+      <button
+        onClick={() =>
+          exportClientsToCSV(
+            selectedSegmentObj ? selectedSegmentObj.data : clients
+          )
+        }
+        className="bg-white border border-slate-200 px-6 py-3 rounded-xl flex items-center gap-2"
+      >
+        <Download className="h-4 w-4" />
+        Exportar lista
+      </button>
 
           <button className="bg-white border border-slate-200 px-6 py-3 rounded-xl flex items-center gap-2">
             <Plus className="h-4 w-4" />
