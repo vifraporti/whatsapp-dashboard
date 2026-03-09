@@ -12,7 +12,10 @@ import {
   Plus,
   ChevronDown,
 } from "lucide-react";
+
 import { clientsSeed } from "../../../../lib/data/clients";
+
+import CampanhaModal from "@/components/clientes/CampanhaModal";
 
 /* ================= TYPES ================= */
 
@@ -55,6 +58,7 @@ export default function SegmentacaoPage() {
   // filtro (card expansível)
   const [segmentFilter, setSegmentFilter] = useState<SegmentFilter>("todos");
   const [filterOpen, setFilterOpen] = useState(false);
+  const [campanhaOpen, setCampanhaOpen] = useState(false);
 
   /* ===== SEGMENTAÇÃO ===== */
 
@@ -229,7 +233,10 @@ export default function SegmentacaoPage() {
 
         {/* ================= AÇÕES ================= */}
         <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 flex flex-wrap gap-4">
-          <button className="bg-slate-900 text-white px-6 py-3 rounded-xl flex items-center gap-2">
+          <button
+            onClick={() => setCampanhaOpen(true)}
+            className="bg-slate-900 text-white px-6 py-3 rounded-xl flex items-center gap-2"
+          >
             <Users className="h-4 w-4" />
             Enviar campanha
           </button>
@@ -329,6 +336,12 @@ export default function SegmentacaoPage() {
           </div>
         </div>
       </div>
+
+      <CampanhaModal
+        open={campanhaOpen}
+        onClose={() => setCampanhaOpen(false)}
+      />
+
     </div>
   );
 }

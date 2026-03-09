@@ -6,36 +6,10 @@ import Avatar from "./Avatar";
 import Icon from "../ui/Icon";
 import ActionButton from "./ActionButton";
 
+import type { Conversation } from "@/lib/types/conversation";
+
 /* ================= TYPES ================= */
 
-type Message = {
-  who: "bot" | "user" | "atendente";
-  at: string;
-  text: string;
-};
-
-type Conversation = {
-  id: string;
-  nome: string;
-  telefone: string;
-  status: "Ativa" | "Aguardando" | "Encerrada";
-  mensagensCount: number;
-  tempoConversa: string;
-  historico: Message[];
-
-  cliente: {
-    email: string;
-    historicoCompras: string;
-    ultimaCompra: string;
-  };
-
-  analise: {
-    sentimento: string;
-    intencao: string;
-    produtosMencionados: string[];
-    tokensUtilizados: number;
-  };
-};
 
 type Props = {
   convo: Conversation;

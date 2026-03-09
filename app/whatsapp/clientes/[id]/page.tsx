@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { clientsSeed } from "../../../../lib/data/clients";
+import { clientsSeed } from "@/lib/data/clients";
 import { ArrowLeft, Star } from "lucide-react";
 
 /* ================= TYPES ================= */
@@ -74,6 +74,12 @@ export default function ClienteDetalhePage() {
   const router = useRouter();
   const [activeTab, setActiveTab] = useState<"resumo" | "compras" | "conversas" | "atividades">("resumo");
   const [search, setSearch] = useState("");
+  const [editOpen, setEditOpen] = useState(false);
+  const [campanhaOpen, setCampanhaOpen] = useState(false);
+
+  const [editName, setEditName] = useState("");
+  const [editPhone, setEditPhone] = useState("");
+  const [editEmail, setEditEmail] = useState("");
 
   // garante tipo do seed
   const clients = clientsSeed as Client[];
@@ -81,6 +87,8 @@ export default function ClienteDetalhePage() {
   const client = useMemo(() => {
     return clients.find((c) => String(c.id) === String(id)) ?? null;
   }, [clients, id]);
+
+  const [clientData, setClientData] = useState(client);
 
   const searchResults = useMemo(() => {
     const s = search.trim().toLowerCase();
@@ -160,12 +168,12 @@ export default function ClienteDetalhePage() {
         <div className="bg-white rounded-3xl p-6 md:p-8 border border-slate-200 shadow-sm flex flex-col md:flex-row md:justify-between md:items-center gap-6">
           <div className="flex items-center gap-6">
             <div className="h-20 w-20 rounded-full bg-slate-100 flex items-center justify-center text-2xl font-bold text-slate-700">
-              {initials(client.name)}
+              {initials(clientData?.name || "")}
             </div>
 
             <div>
-              <h2 className="text-2xl font-bold">{client.name}</h2>
-              <p className="text-slate-600">{client.email}</p>
+              <h2 className="text-2xl font-bold">{clientData?.name}</h2>
+              <p className="text-slate-600">{clientData?.email}</p>
 
               <div className="flex gap-3 mt-3">
                 <span
@@ -187,7 +195,15 @@ export default function ClienteDetalhePage() {
             </div>
           </div>
 
-          <button className="bg-slate-900 text-white px-5 py-2.5 rounded-xl">
+          <button
+            onClick={() => {
+              setEditName(clientData?.name || "");
+              setEditPhone(clientData?.phone || "");
+              setEditEmail(clientData?.email || "");
+              setEditOpen(true);
+            }}
+            className="bg-slate-900 text-white px-5 py-2.5 rounded-xl"
+          >
             Editar Cliente
           </button>
         </div>
@@ -202,12 +218,83 @@ export default function ClienteDetalhePage() {
 
         {/* Conteúdo */}
         <div className="space-y-6">
-          {activeTab === "resumo" && <ResumoTab client={client} ticketMedio={ticketMedio} />}
+          {activeTab === "resumo" && <ResumoTab client={clientData!} ticketMedio={ticketMedio} />}
           {activeTab === "compras" && <ComprasTab />}
           {activeTab === "conversas" && <ConversasTab />}
           {activeTab === "atividades" && <AtividadesTab client={client} />}
         </div>
       </div>
+      {editOpen && (
+        <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
+
+          <div className="bg-white rounded-2xl p-6 w-[420px] shadow-xl">
+
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-lg font-bold">
+                Editar Cliente
+              </h2>
+
+              <button
+                onClick={() => setEditOpen(false)}
+                className="text-slate-500 hover:text-slate-900 text-lg"
+              >
+                ✕
+              </button>
+            </div>
+            <div className="space-y-3">
+
+              <input
+                className="w-full border rounded-lg p-2"
+                value={editName}
+                onChange={(e) => setEditName(e.target.value)}
+              />
+
+              <input
+                className="w-full border rounded-lg p-2"
+                value={editPhone}
+                onChange={(e) => setEditPhone(e.target.value)}
+              />
+
+              <input
+                className="w-full border rounded-lg p-2"
+                value={editEmail}
+                onChange={(e) => setEditEmail(e.target.value)}
+              />
+
+            </div>
+
+            <div className="flex justify-end gap-2 mt-5">
+
+              <button
+                onClick={() => setEditOpen(false)}
+                className="px-4 py-2 rounded-lg border"
+              >
+                Cancelar
+              </button>
+
+              <button
+                onClick={() => {
+                  setClientData({
+                    ...clientData!,
+                    name: editName,
+                    phone: editPhone,
+                    email: editEmail
+                  });
+
+                  setEditOpen(false);
+                }}
+                className="px-4 py-2 bg-slate-900 text-white rounded-lg"
+              >
+                Salvar
+              </button>
+
+            </div>
+
+          </div>
+
+        </div>
+      )}
+
     </div>
   );
 }
@@ -236,9 +323,6 @@ function ResumoTab({ client, ticketMedio }: ResumoTabProps) {
         <h2 className="text-xl font-bold text-slate-900">Dados Pessoais</h2>
 
         <div className="flex flex-wrap gap-3">
-          <button className="flex items-center gap-2 px-4 py-2 rounded-xl border border-slate-300 bg-white hover:bg-slate-100 text-sm font-medium text-slate-800 shadow-sm">
-            ✏️ Editar informações
-          </button>
           <button className="flex items-center gap-2 px-4 py-2 rounded-xl bg-slate-900 text-white text-sm">
             💬 Enviar mensagem
           </button>
