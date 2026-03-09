@@ -5,9 +5,11 @@ import { ChevronRight } from "lucide-react";
 
 import { clientsSeed } from "../../lib/data/clients";
 
-function isActive(pathname, href) {
+function isActive(pathname: string, href: string) {
   return pathname.startsWith(href);
 }
+
+//teste
 
 export default function ClientesTabs() {
   const pathname = usePathname();
