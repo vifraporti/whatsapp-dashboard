@@ -3,9 +3,9 @@
 import { useRouter } from "next/navigation"
 import { useMemo, useState } from "react"
 import { clientsSeed } from "../../../lib/data/clients"
-import { Eye, Pencil, History, MessageCircle, Star } from "lucide-react"
+import { Eye, Star } from "lucide-react"
 import ClientesTabs from "../../../components/clientes/ClientesTabs";
-
+import NovoClienteModal from "@/components/clientes/NovoClienteModal";
 
 
 function initials(name = "") {
@@ -83,17 +83,26 @@ function ActionIcon({ title, onClick, children }) {
 }
 
 export default function ClientesPage() {
+
   const router = useRouter()
 
   const [search, setSearch] = useState("")
   const [statusFilter, setStatusFilter] = useState("todos")
   const [sortBy, setSortBy] = useState("nome")
 
+  const [novoClienteOpen, setNovoClienteOpen] = useState(false)
+
+  // 🔹 clientes agora são state
+  const [clients, setClients] = useState(clientsSeed)
+
+
   const filteredClients = useMemo(() => {
-    let data = [...clientsSeed]
+
+    let data = [...clients]
 
     if (search.trim()) {
       const s = search.toLowerCase()
+
       data = data.filter(c =>
         c.name.toLowerCase().includes(s) ||
         c.email.toLowerCase().includes(s) ||
@@ -106,42 +115,70 @@ export default function ClientesPage() {
     }
 
     data.sort((a, b) => {
-      if (sortBy === "nome") return a.name.localeCompare(b.name)
-      if (sortBy === "cadastro") return new Date(b.registrationDate) - new Date(a.registrationDate)
-      if (sortBy === "compras") return b.purchasesCount - a.purchasesCount
-      if (sortBy === "gasto") return b.totalSpent - a.totalSpent
+
+      if (sortBy === "nome")
+        return a.name.localeCompare(b.name)
+
+      if (sortBy === "cadastro")
+        return new Date(b.registrationDate).getTime() - new Date(a.registrationDate).getTime()
+
+      if (sortBy === "compras")
+        return b.purchasesCount - a.purchasesCount
+
+      if (sortBy === "gasto")
+        return b.totalSpent - a.totalSpent
+
       return 0
     })
 
     return data
-  }, [search, statusFilter, sortBy])
 
-  const total = clientsSeed.length
-  const ativos = clientsSeed.filter(c => c.status === "Ativo").length
-  const inativos = clientsSeed.filter(c => c.status === "Inativo").length
+  }, [search, statusFilter, sortBy, clients])
+
+
+  const total = clients.length
+  const ativos = clients.filter(c => c.status === "Ativo").length
+  const inativos = clients.filter(c => c.status === "Inativo").length
+
 
   return (
+
     <div className="min-h-screen bg-neutral-100 px-4 md:px-6 py-6 text-slate-900">
+
       <div className="max-w-7xl mx-auto space-y-8">
 
+
         {/* Header */}
+
         <div className="flex items-start justify-between">
+
           <div>
-            <h1 className="text-3xl font-bold tracking-tight">Clientes</h1>
+            <h1 className="text-3xl font-bold tracking-tight">
+              Clientes
+            </h1>
+
             <p className="text-sm text-slate-600 mt-1">
               Gerencie sua base de clientes
             </p>
           </div>
-          <button className="bg-slate-900 text-white px-5 py-2.5 rounded-xl shadow-sm w-full md:w-auto">
+
+          <button
+            onClick={() => setNovoClienteOpen(true)}
+            className="bg-slate-900 text-white px-6 py-3 rounded-xl flex items-center gap-2"
+          >
             + Novo Cliente
           </button>
+
         </div>
 
-        {/* 🔥 AQUI ESTAVA FALTANDO */}
+
         <ClientesTabs />
 
+
         {/* Quick Stats */}
+
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+
           <div className="bg-white p-5 rounded-2xl shadow-sm border border-slate-200">
             <p className="text-sm text-slate-500">Total</p>
             <p className="text-3xl font-bold mt-2">{total}</p>
@@ -156,13 +193,20 @@ export default function ClientesPage() {
             <p className="text-sm text-slate-500">Inativos</p>
             <p className="text-3xl font-bold mt-2">{inativos}</p>
           </div>
+
         </div>
 
+
         {/* Tabela */}
+
         <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+
           <div className="overflow-x-auto">
+
             <table className="min-w-[700px] w-full text-sm">
+
               <thead>
+
                 <tr className="border-b border-slate-200 text-slate-500">
                   <th className="px-6 py-4 text-left">Nome</th>
                   <th className="px-6 py-4 text-left">Email</th>
@@ -170,28 +214,38 @@ export default function ClientesPage() {
                   <th className="px-6 py-4 text-left">Status</th>
                   <th className="px-6 py-4 text-right">Ações</th>
                 </tr>
+
               </thead>
 
               <tbody>
+
                 {filteredClients.map((c) => (
-                 <tr
+
+                  <tr
                     key={c.id}
                     className="border-b border-slate-100 hover:bg-slate-50"
                   >
+
                     <td className="px-6 py-4 font-semibold">
+
                       <button
                         onClick={() => router.push(`/whatsapp/clientes/${c.id}`)}
                         className="w-full text-left"
                       >
                         {c.name}
                       </button>
+
                     </td>
+
                     <td className="px-6 py-4">{c.email}</td>
                     <td className="px-6 py-4">{c.phone}</td>
+
                     <td className="px-6 py-4">
                       <StatusPill status={c.status} />
                     </td>
+
                     <td className="px-6 py-4 text-right whitespace-nowrap">
+
                       <ActionIcon
                         title="Ver"
                         onClick={(e) => {
@@ -201,16 +255,33 @@ export default function ClientesPage() {
                       >
                         <Eye className="h-5 w-5" />
                       </ActionIcon>
+
                     </td>
+
                   </tr>
+
                 ))}
+
               </tbody>
 
             </table>
+
           </div>
+
         </div>
 
       </div>
+
+
+      {/* Modal */}
+
+      <NovoClienteModal
+        open={novoClienteOpen}
+        onClose={() => setNovoClienteOpen(false)}
+        onCreate={(novo) => setClients(prev => [...prev, novo])}
+      />
+
     </div>
+
   )
 }
