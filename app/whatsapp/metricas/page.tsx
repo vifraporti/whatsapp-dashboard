@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import MetricsScreen from "../../components/screens/MetricsScreen";
+import MetricsScreen from "../../../components/screens/MetricsScreen";
 
 export default function Page() {
   const [period, setPeriod] = useState("24h");

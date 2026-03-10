@@ -12,7 +12,12 @@ import {
   Plus,
   ChevronDown,
 } from "lucide-react";
+
 import { clientsSeed } from "../../../../lib/data/clients";
+
+import CampanhaModal from "@/components/clientes/CampanhaModal";
+import { exportClientsToCSV } from "@/lib/utils/exportClients";
+
 
 /* ================= TYPES ================= */
 
@@ -27,7 +32,7 @@ type Client = {
   registrationDate: string; // ISO (ex: "2026-03-01") ou BR, mas ideal ISO
 };
 
-type SegmentKey = "VIP" | "Regular" | "Novo" | "Inativo";
+type SegmentKey = string;
 type SegmentFilter = "todos" | SegmentKey;
 
 type Segment = {
@@ -48,13 +53,37 @@ function formatCurrency(value: number): string {
 export default function SegmentacaoPage() {
   const router = useRouter();
 
-  const clients = clientsSeed as Client[];
+  const clients: Client[] = clientsSeed;
 
   const [selectedSegment, setSelectedSegment] = useState<SegmentKey | null>(null);
 
   // filtro (card expansível)
   const [segmentFilter, setSegmentFilter] = useState<SegmentFilter>("todos");
   const [filterOpen, setFilterOpen] = useState(false);
+  const [campanhaOpen, setCampanhaOpen] = useState(false);
+  const [customSegments, setCustomSegments] = useState<Segment[]>([]);
+
+  function criarSegmento() {
+    const nome = prompt("Nome do novo segmento:");
+    if (!nome) return;
+
+    const gastoMin = Number(
+      prompt("Valor mínimo gasto para entrar nesse segmento (R$):")
+    );
+
+    if (isNaN(gastoMin)) return;
+
+    const filtrados = clients.filter((c) => c.totalSpent >= gastoMin);
+
+    const novoSegmento: Segment = {
+      key: nome,
+      label: nome,
+      data: filtrados,
+      icon: <Users className="h-5 w-5" />,
+    };
+
+    setCustomSegments((prev) => [...prev, novoSegmento]);
+  }
 
   /* ===== SEGMENTAÇÃO ===== */
 
@@ -82,14 +111,15 @@ export default function SegmentacaoPage() {
   const total = clients.length;
 
   const segments = useMemo<Segment[]>(
-    () => [
-      { key: "VIP", label: "VIP", data: vip, icon: <Star className="h-5 w-5" /> },
-      { key: "Regular", label: "Regulares", data: regular, icon: <TrendingUp className="h-5 w-5" /> },
-      { key: "Novo", label: "Novos", data: novo, icon: <Users className="h-5 w-5" /> },
-      { key: "Inativo", label: "Inativos", data: inativo, icon: <UserX className="h-5 w-5" /> },
-    ],
-    [vip, regular, novo, inativo]
-  );
+  () => [
+    { key: "VIP", label: "VIP", data: vip, icon: <Star className="h-5 w-5" /> },
+    { key: "Regular", label: "Regulares", data: regular, icon: <TrendingUp className="h-5 w-5" /> },
+    { key: "Novo", label: "Novos", data: novo, icon: <Users className="h-5 w-5" /> },
+    { key: "Inativo", label: "Inativos", data: inativo, icon: <UserX className="h-5 w-5" /> },
+    ...customSegments,
+  ],
+  [vip, regular, novo, inativo, customSegments]
+);
 
   // filtro só para a TABELA
   const filteredSegments = useMemo(() => {
@@ -229,17 +259,30 @@ export default function SegmentacaoPage() {
 
         {/* ================= AÇÕES ================= */}
         <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 flex flex-wrap gap-4">
-          <button className="bg-slate-900 text-white px-6 py-3 rounded-xl flex items-center gap-2">
+          <button
+            onClick={() => setCampanhaOpen(true)}
+            className="bg-slate-900 text-white px-6 py-3 rounded-xl flex items-center gap-2"
+          >
             <Users className="h-4 w-4" />
             Enviar campanha
           </button>
 
-          <button className="bg-white border border-slate-200 px-6 py-3 rounded-xl flex items-center gap-2">
-            <Download className="h-4 w-4" />
-            Exportar lista
-          </button>
+      <button
+        onClick={() =>
+          exportClientsToCSV(
+            selectedSegmentObj ? selectedSegmentObj.data : clients
+          )
+        }
+        className="bg-white border border-slate-200 px-6 py-3 rounded-xl flex items-center gap-2"
+      >
+        <Download className="h-4 w-4" />
+        Exportar lista
+      </button>
 
-          <button className="bg-white border border-slate-200 px-6 py-3 rounded-xl flex items-center gap-2">
+          <button
+            onClick={criarSegmento}
+            className="bg-white border border-slate-200 px-6 py-3 rounded-xl flex items-center gap-2"
+          >
             <Plus className="h-4 w-4" />
             Criar novo segmento
           </button>
@@ -329,6 +372,12 @@ export default function SegmentacaoPage() {
           </div>
         </div>
       </div>
+
+      <CampanhaModal
+        open={campanhaOpen}
+        onClose={() => setCampanhaOpen(false)}
+      />
+
     </div>
   );
 }

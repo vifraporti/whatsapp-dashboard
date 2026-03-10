@@ -15,7 +15,7 @@ export default function Sidebar() {
 
   const menu = [
     { label: "Monitoramento", icon: LayoutDashboard, path: "/whatsapp/monitoramento" },
-    { label: "Métricas", icon: BarChart3, path: "/whatsapp" },
+    { label: "Métricas", icon: BarChart3, path: "/whatsapp/metricas" },
     { label: "Clientes", icon: Users, path: "/whatsapp/clientes" },
     { label: "Conexão", icon: Plug, path: "/whatsapp/conexao" },
     { label: "IA", icon: Brain, path: "/whatsapp/ia" },

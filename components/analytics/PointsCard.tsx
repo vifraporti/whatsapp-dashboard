@@ -41,7 +41,7 @@ export default function PointsCard({
         </div>
         <span
           className={classNames(
-            "text-xs px-3 py-1 rounded-full text-white bg-gradient-to-r",
+            "text-xs px-3 py-1 rounded-full text-white bg-linear-to-r",
             level.gradient
           )}
         >

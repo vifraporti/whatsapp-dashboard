@@ -1,3 +1,5 @@
+import type { Conversation } from "../types/conversation";
+
 export const statusOptions = [
   "Todas",
   "Ativa",
@@ -7,7 +9,7 @@ export const statusOptions = [
   "Personalizar data"
 ];
 
-export const seedConversations = [
+export const seedConversations: Conversation[] = [
   {
     id: "c1",
     createdAt: "2026-02-15",
@@ -32,11 +34,11 @@ export const seedConversations = [
     },
     tempoConversa: "18 min",
     historico: [
-      { at: "14:30", who: "Cliente", text: "Oi! Só passando pra agradecer 😊" },
-      { at: "14:31", who: "Bot", text: "Que bom! Se precisar de algo, estou por aqui." },
-      { at: "14:33", who: "Cliente", text: "Queria ver também sobre a jaqueta." },
-      { at: "14:34", who: "Bot", text: "Claro! Qual tamanho e cor você prefere?" },
-      { at: "14:36", who: "Cliente", text: "P, preta." },
+      { at: "14:30", who: "user", text: "Oi! Só passando pra agradecer 😊" },
+      { at: "14:31", who: "bot", text: "Que bom! Se precisar de algo, estou por aqui." },
+      { at: "14:33", who: "user", text: "Queria ver também sobre a jaqueta." },
+      { at: "14:34", who: "bot", text: "Claro! Qual tamanho e cor você prefere?" },
+      { at: "14:36", who: "user", text: "P, preta." },
     ],
   },
   {
@@ -63,10 +65,10 @@ export const seedConversations = [
     },
     tempoConversa: "1h 06 min",
     historico: [
-      { at: "16:40", who: "Cliente", text: "Oi, qual é o preço do notebook?" },
-      { at: "16:41", who: "Bot", text: "Olá! Temos notebooks a partir de R$ 2.500. Qual é seu orçamento?" },
-      { at: "16:42", who: "Cliente", text: "Até R$ 3.000" },
-      { at: "16:43", who: "Bot", text: "Perfeito! Recomendo o modelo XYZ por R$ 2.999. Quer mais informações?" },
+      { at: "16:40", who: "user", text: "Oi, qual é o preço do notebook?" },
+      { at: "16:41", who: "bot", text: "Olá! Temos notebooks a partir de R$ 2.500. Qual é seu orçamento?" },
+      { at: "16:42", who: "user", text: "Até R$ 3.000" },
+      { at: "16:43", who: "bot", text: "Perfeito! Recomendo o modelo XYZ por R$ 2.999. Quer mais informações?" },
     ],
   },
   {
@@ -93,9 +95,9 @@ export const seedConversations = [
     },
     tempoConversa: "2 dias",
     historico: [
-      { at: "09:05", who: "Cliente", text: "Bom dia, meu pedido atrasou." },
-      { at: "09:06", who: "Bot", text: "Sinto muito por isso. Pode me enviar o número do pedido?" },
-      { at: "09:10", who: "Cliente", text: "Pedido #4312. Estou aguardando retorno..." },
+      { at: "09:05", who: "user", text: "Bom dia, meu pedido atrasou." },
+      { at: "09:06", who: "bot", text: "Sinto muito por isso. Pode me enviar o número do pedido?" },
+      { at: "09:10", who: "user", text: "Pedido #4312. Estou aguardando retorno..." },
     ],
   },
   {
@@ -124,20 +126,20 @@ export const seedConversations = [
     historico: [
       {
         at: "10:25",
-        who: "Cliente",
+        who: "user",
         text: "Hi, I ordered the premium package last week, but I haven't received a tracking number. Order #12345.",
       },
       {
         at: "10:26",
-        who: "Bot",
+        who: "bot",
         text: "Hello Julia! Thank you for reaching out. Let me check the status of your order #12345 for you.",
       },
       {
         at: "10:30",
-        who: "Bot",
+        who: "bot",
         text: "I've located your order. It's currently in transit and should arrive by tomorrow. Here's your tracking link: [Tracking Link]. Is there anything else I can assist you with?",
       },
-      { at: "10:31", who: "Cliente", text: "Okay, great. I appreciate it." },
+      { at: "10:31", who: "user", text: "Okay, great. I appreciate it." },
     ],
   },
 ];
