@@ -320,27 +320,29 @@ Sempre responda de forma clara, educada e objetiva.
     </div>
   </div>
 
-  {/* CRIATIVIDADE */}
+<div className="space-y-3 max-w-xl">
 
-  <div className="space-y-3">
-    <h2 className="text-lg font-semibold">Criatividade da IA</h2>
-
-    <input
-      type="range"
-      min="0"
-      max="1"
-      step="0.1"
-      value={criatividade}
-      onChange={(e) => setCriatividade(Number(e.target.value))}
-      className="w-full accent-violet-600"
-    />
-
-    <div className="flex justify-between text-sm text-slate-500">
-      <span>Conservadora</span>
-      <span>Criativa</span>
-    </div>
+  <div className="flex justify-between text-sm text-slate-600">
+    <span>Criatividade da IA</span>
+    <span className="font-medium">{criatividade.toFixed(1)}</span>
   </div>
 
+  <input
+    type="range"
+    min="0"
+    max="1"
+    step="0.1"
+    value={criatividade}
+    onChange={(e) => setCriatividade(Number(e.target.value))}
+    className="w-full accent-violet-600"
+  />
+
+  <div className="flex justify-between text-xs text-slate-400">
+    <span>Conservadora</span>
+    <span>Criativa</span>
+  </div>
+
+</div>
   {/* INSTRUÇÕES DA IA */}
 
   <div className="space-y-3">
