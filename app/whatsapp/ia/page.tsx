@@ -15,7 +15,15 @@ import RecentEvents from "@/components/analytics/RecentEvents";
 import StatusCard from "@/components/analytics/StatusCard";
 import SimulationPreviewCard from "@/components/analytics/SimulationPreviewCard";
 
-import { MessageCircle, ShoppingCart, TrendingUp, Sparkles, Plus } from "lucide-react";
+import {
+  MessageCircle,
+  ShoppingCart,
+  TrendingUp,
+  Sparkles,
+  Plus,
+  Bot,
+  FileText
+} from "lucide-react";
 
 /* ================= TYPES (local) ================= */
 
@@ -76,6 +84,55 @@ export default function CentralIAWhatsAppPage() {
     },
   ]);
 
+  const [estiloIA, setEstiloIA] = useState("comercial");
+
+  // ================= CONFIGURAÇÕES DA IA =================
+
+  const [modoIA, setModoIA] = useState("consultor");
+  const [criatividade, setCriatividade] = useState(0.5);
+  const [instrucoesIA, setInstrucoesIA] = useState("");
+
+  const estilos = [
+    { key: "comercial", label: "Comercial", desc: "Focado em vendas e conversão" },
+    { key: "profissional", label: "Profissional", desc: "Tom formal e técnico" },
+    { key: "amigavel", label: "Amigável", desc: "Tom simpático e humano" },
+    { key: "engracado", label: "Engraçado", desc: "Tom leve e descontraído" },
+    { key: "direto", label: "Direto", desc: "Respostas curtas e objetivas" },
+  ];
+
+  const modos = [
+  {
+    key: "consultor",
+    label: "Consultor",
+    desc: "Ajuda o cliente a decidir com explicações claras",
+  },
+  {
+    key: "vendedor",
+    label: "Vendedor",
+    desc: "Focado em fechar vendas rapidamente",
+  },
+  {
+    key: "suporte",
+    label: "Suporte",
+    desc: "Resolve problemas e dúvidas técnicas",
+  },
+];
+
+/* ================= PROMPT GERADO ================= */
+
+const promptGerado = `
+Você é uma IA de atendimento via WhatsApp.
+
+Estilo de conversa: ${estiloIA}
+Modo de atendimento: ${modoIA}
+Criatividade: ${criatividade}
+
+Instruções da empresa:
+${instrucoesIA || "Nenhuma instrução adicional."}
+
+Sempre responda de forma clara, educada e objetiva.
+`;
+
   const metrics = useMemo<Metrics>(
     () => ({
       mensagensRespondidas: 3240,
@@ -102,9 +159,9 @@ export default function CentralIAWhatsAppPage() {
 
   const level = useMemo(() => calcLevel(points), [points]);
 
-  const [activeSimulator, setActiveSimulator] = useState<"mensagens" | "compras" | "impacto" | null>(
-    null
-  );
+  const [activeSimulator, setActiveSimulator] = useState<
+    "mensagens" | "compras" | "impacto" | null
+  >(null);
 
   const handleSimulate = (type: IAEventType) => {
     const rule = POINT_RULES.find((r) => r.type === type);
@@ -134,13 +191,17 @@ export default function CentralIAWhatsAppPage() {
   return (
     <div className="min-h-screen text-slate-900 p-4 md:p-8 lg:p-10">
       <div className="w-full space-y-6 md:space-y-8">
+
         {/* HEADER */}
+
         <header className="relative overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm">
           <div className="relative p-6 md:p-8 flex flex-col md:flex-row md:items-end md:justify-between gap-5">
             <div className="space-y-2">
               <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-violet-50 border border-violet-200 text-violet-700">
                 <Sparkles className="w-4 h-4" />
-                <span className="text-sm font-medium">Central da IA • WhatsApp Business</span>
+                <span className="text-sm font-medium">
+                  Central da IA • WhatsApp Business
+                </span>
               </div>
 
               <h1 className="text-2xl md:text-3xl font-semibold tracking-tight">
@@ -204,6 +265,137 @@ export default function CentralIAWhatsAppPage() {
           impactoFinanceiro={impactoFinanceiro}
         />
 
+        <section className="bg-white rounded-3xl border border-slate-200 shadow-sm p-6 space-y-8">
+
+  {/* PERSONALIDADE */}
+
+  <div className="space-y-4">
+    <div className="flex items-center gap-2">
+      <Bot className="w-5 h-5 text-violet-600" />
+      <h2 className="text-lg font-semibold">Personalidade da IA</h2>
+    </div>
+
+    <p className="text-sm text-slate-500">
+      Defina o estilo de comunicação da IA com seus clientes.
+    </p>
+
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+      {estilos.map((e) => (
+        <button
+          key={e.key}
+          onClick={() => setEstiloIA(e.key)}
+          className={`text-left p-4 rounded-xl border transition ${
+            estiloIA === e.key
+              ? "border-violet-500 bg-violet-50"
+              : "border-slate-200 hover:bg-slate-50"
+          }`}
+        >
+          <div className="font-medium">{e.label}</div>
+          <div className="text-sm text-slate-500">{e.desc}</div>
+        </button>
+      ))}
+    </div>
+  </div>
+
+  {/* MODO DA IA */}
+
+  <div className="space-y-4">
+    <h2 className="text-lg font-semibold">Modo de Atendimento</h2>
+
+    <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+      {modos.map((m) => (
+        <button
+          key={m.key}
+          onClick={() => setModoIA(m.key)}
+          className={`text-left p-4 rounded-xl border transition ${
+            modoIA === m.key
+              ? "border-violet-500 bg-violet-50"
+              : "border-slate-200 hover:bg-slate-50"
+          }`}
+        >
+          <div className="font-medium">{m.label}</div>
+          <div className="text-sm text-slate-500">{m.desc}</div>
+        </button>
+      ))}
+    </div>
+  </div>
+
+  {/* CRIATIVIDADE */}
+
+  <div className="space-y-3">
+    <h2 className="text-lg font-semibold">Criatividade da IA</h2>
+
+    <input
+      type="range"
+      min="0"
+      max="1"
+      step="0.1"
+      value={criatividade}
+      onChange={(e) => setCriatividade(Number(e.target.value))}
+      className="w-full accent-violet-600"
+    />
+
+    <div className="flex justify-between text-sm text-slate-500">
+      <span>Conservadora</span>
+      <span>Criativa</span>
+    </div>
+  </div>
+
+  {/* INSTRUÇÕES DA IA */}
+
+  <div className="space-y-3">
+    <h2 className="text-lg font-semibold">Instruções da IA</h2>
+
+    <textarea
+      value={instrucoesIA}
+      onChange={(e) => setInstrucoesIA(e.target.value)}
+      rows={4}
+      placeholder="Ex: Sempre oferecer desconto em pedidos acima de R$500."
+      className="w-full border border-slate-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-violet-400"
+    />
+  </div>
+
+  {/* SALVAR */}
+
+  <div className="flex justify-end">
+    <button
+      onClick={() => {
+        console.log({
+          estiloIA,
+          modoIA,
+          criatividade,
+          instrucoesIA,
+        });
+      }}
+      className="bg-violet-600 text-white px-5 py-2 rounded-xl hover:bg-violet-700 transition"
+    >
+      Salvar configuração
+    </button>
+  </div>
+
+</section>
+
+{/* PREVIEW DO PROMPT DA IA */}
+
+<section className="bg-white rounded-3xl border border-slate-200 shadow-sm p-6 space-y-4">
+
+  <div className="flex items-center gap-2">
+    <FileText className="w-5 h-5 text-violet-600" />
+    <h2 className="text-lg font-semibold">Prompt da IA (Preview)</h2>
+  </div>
+
+  <p className="text-sm text-slate-500">
+    Este é o prompt que será usado pela IA para responder seus clientes.
+  </p>
+
+  <div className="bg-slate-900 text-slate-100 rounded-xl p-4 text-sm whitespace-pre-wrap font-mono">
+    {promptGerado}
+  </div>
+
+</section>
+
+        {/* MÉTRICAS */}
+
         <section className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <PointsCard points={points} level={level} />
           <PerformanceCard metrics={metrics} />
@@ -211,7 +403,10 @@ export default function CentralIAWhatsAppPage() {
 
         <section className="space-y-6 overflow-x-auto">
           <WeeklyChart data={initialChartData} metrics={metrics} />
-          <PointsRules rules={POINT_RULES} onSimulate={(rule: PointsRule) => handlePreview(rule.type)} />
+          <PointsRules
+            rules={POINT_RULES}
+            onSimulate={(rule: PointsRule) => handlePreview(rule.type)}
+          />
         </section>
 
         <section className="grid grid-cols-1 lg:grid-cols-2 gap-6">

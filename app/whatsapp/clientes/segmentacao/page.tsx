@@ -26,10 +26,10 @@ type Client = {
   name: string;
   email: string;
   phone: string;
-  status: string; // "Ativo" | "Inativo" etc
+  status: string;
   totalSpent: number;
   purchasesCount: number;
-  registrationDate: string; // ISO (ex: "2026-03-01") ou BR, mas ideal ISO
+  registrationDate: string;
 };
 
 type SegmentKey = string;
@@ -43,6 +43,7 @@ type Segment = {
 };
 
 /* ===== Formatador BRL ===== */
+
 function formatCurrency(value: number): string {
   return value.toLocaleString("pt-BR", {
     style: "currency",
@@ -57,21 +58,51 @@ export default function SegmentacaoPage() {
 
   const [selectedSegment, setSelectedSegment] = useState<SegmentKey | null>(null);
 
-  // filtro (card expansível)
+  const [modalSegmento, setModalSegmento] = useState(false);
+  const [nomeSegmento, setNomeSegmento] = useState("");
+  const [gastoMinimo, setGastoMinimo] = useState("");
+
   const [segmentFilter, setSegmentFilter] = useState<SegmentFilter>("todos");
   const [filterOpen, setFilterOpen] = useState(false);
   const [campanhaOpen, setCampanhaOpen] = useState(false);
   const [customSegments, setCustomSegments] = useState<Segment[]>([]);
 
-  function criarSegmento() {
-    const nome = prompt("Nome do novo segmento:");
-    if (!nome) return;
+  /* ================= MODAL ================= */
 
-    const gastoMin = Number(
-      prompt("Valor mínimo gasto para entrar nesse segmento (R$):")
+  function criarSegmento() {
+    setModalSegmento(true);
+  }
+
+  function fecharModalSegmento() {
+    setModalSegmento(false);
+    setNomeSegmento("");
+    setGastoMinimo("");
+  }
+
+  function salvarSegmento() {
+    const nome = nomeSegmento.trim();
+    const gastoMin = Number(gastoMinimo);
+
+    if (!nome) {
+      alert("Informe o nome do segmento.");
+      return;
+    }
+
+    if (!gastoMinimo || isNaN(gastoMin) || gastoMin < 0) {
+      alert("Informe um valor mínimo válido.");
+      return;
+    }
+
+    const chaveNormalizada = nome.toLowerCase();
+
+    const jaExiste = customSegments.some(
+      (seg) => seg.key.toLowerCase() === chaveNormalizada
     );
 
-    if (isNaN(gastoMin)) return;
+    if (jaExiste) {
+      alert("Já existe um segmento com esse nome.");
+      return;
+    }
 
     const filtrados = clients.filter((c) => c.totalSpent >= gastoMin);
 
@@ -83,9 +114,14 @@ export default function SegmentacaoPage() {
     };
 
     setCustomSegments((prev) => [...prev, novoSegmento]);
+    setSegmentFilter(nome);
+    setSelectedSegment(nome);
+
+    fecharModalSegmento();
   }
 
-  /* ===== SEGMENTAÇÃO ===== */
+
+  /* ================= SEGMENTAÇÃO ================= */
 
   const vip = useMemo(() => clients.filter((c) => c.totalSpent > 5000), [clients]);
 
@@ -111,17 +147,17 @@ export default function SegmentacaoPage() {
   const total = clients.length;
 
   const segments = useMemo<Segment[]>(
-  () => [
-    { key: "VIP", label: "VIP", data: vip, icon: <Star className="h-5 w-5" /> },
-    { key: "Regular", label: "Regulares", data: regular, icon: <TrendingUp className="h-5 w-5" /> },
-    { key: "Novo", label: "Novos", data: novo, icon: <Users className="h-5 w-5" /> },
-    { key: "Inativo", label: "Inativos", data: inativo, icon: <UserX className="h-5 w-5" /> },
-    ...customSegments,
-  ],
-  [vip, regular, novo, inativo, customSegments]
-);
+    () => [
+      { key: "VIP", label: "VIP", data: vip, icon: <Star className="h-5 w-5" /> },
+      { key: "Regular", label: "Regulares", data: regular, icon: <TrendingUp className="h-5 w-5" /> },
+      { key: "Novo", label: "Novos", data: novo, icon: <Users className="h-5 w-5" /> },
+      { key: "Inativo", label: "Inativos", data: inativo, icon: <UserX className="h-5 w-5" /> },
+      ...customSegments,
+    ],
+    [vip, regular, novo, inativo, customSegments]
+  );
 
-  // filtro só para a TABELA
+
   const filteredSegments = useMemo(() => {
     if (segmentFilter === "todos") return segments;
     return segments.filter((seg) => seg.key === segmentFilter);
@@ -136,6 +172,8 @@ export default function SegmentacaoPage() {
     if (!selectedSegment) return null;
     return segments.find((s) => s.key === selectedSegment) ?? null;
   }, [selectedSegment, segments]);
+
+/* ================= UI ================= */
 
   return (
     <div className="min-h-screen bg-neutral-100 p-8 text-slate-900">
@@ -287,27 +325,7 @@ export default function SegmentacaoPage() {
             Criar novo segmento
           </button>
         </div>
-
-        {/* ================= PREVIEW CLIENTES ================= */}
-        {selectedSegmentObj && (
-          <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-6">
-            <div className="font-semibold mb-4">
-              Clientes do segmento: {selectedSegmentObj.label}
-            </div>
-
-            <div className="space-y-2">
-              {selectedSegmentObj.data.slice(0, 5).map((c) => (
-                <div
-                  key={String(c.id)}
-                  className="flex justify-between text-sm border-b border-slate-100 pb-2"
-                >
-                  <span>{c.name}</span>
-                  <span>{formatCurrency(c.totalSpent ?? 0)}</span>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
+        
 
         {/* ================= PREVIEW RÁPIDO + ATALHOS ================= */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -378,6 +396,68 @@ export default function SegmentacaoPage() {
         onClose={() => setCampanhaOpen(false)}
       />
 
+{modalSegmento && (
+  <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/50 backdrop-blur-sm p-4">
+    <div className="w-full max-w-md rounded-3xl border border-slate-200/10 bg-slate-900 shadow-2xl">
+      <div className="border-b border-white/10 px-6 py-5">
+        <h2 className="text-lg font-semibold text-white">
+          Criar novo segmento
+        </h2>
+        <p className="mt-1 text-sm text-slate-400">
+          Defina um nome e o valor mínimo gasto para agrupar os clientes.
+        </p>
+      </div>
+
+      <div className="space-y-5 px-6 py-6">
+        <div>
+          <label className="mb-2 block text-sm font-medium text-slate-300">
+            Nome do segmento
+          </label>
+          <input
+            type="text"
+            value={nomeSegmento}
+            onChange={(e) => setNomeSegmento(e.target.value)}
+            placeholder="Ex: Clientes Premium"
+            className="w-full rounded-2xl border border-white/10 bg-slate-800 px-4 py-3 text-white placeholder:text-slate-500 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-500/30"
+          />
+        </div>
+
+        <div>
+          <label className="mb-2 block text-sm font-medium text-slate-300">
+            Valor mínimo gasto
+          </label>
+          <input
+            type="number"
+            min="0"
+            step="0.01"
+            value={gastoMinimo}
+            onChange={(e) => setGastoMinimo(e.target.value)}
+            placeholder="Ex: 5000"
+            className="w-full rounded-2xl border border-white/10 bg-slate-800 px-4 py-3 text-white placeholder:text-slate-500 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-500/30"
+          />
+        </div>
+      </div>
+
+      <div className="flex justify-end gap-3 border-t border-white/10 px-6 py-5">
+        <button
+          type="button"
+          onClick={fecharModalSegmento}
+          className="rounded-2xl border border-white/10 bg-slate-800 px-5 py-2.5 text-sm font-medium text-slate-200 transition hover:bg-slate-700"
+        >
+          Cancelar
+        </button>
+
+        <button
+          type="button"
+          onClick={salvarSegmento}
+          className="rounded-2xl bg-blue-600 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-blue-500"
+        >
+          Criar segmento
+        </button>
+      </div>
+    </div>
+  </div>
+)}
     </div>
   );
 }
